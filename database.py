@@ -1,9 +1,6 @@
 from peewee import *
 from time import time as timestamp
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from secrets import token_hex
-from typing import List
-from datetime import date
 from enumerations import Permissions
 import json
 
@@ -44,19 +41,24 @@ class Users(BaseModel):
     permissions = JSONField(default={[Permissions.VIEW_INFO_MAT]})
 
 
-class Location(BaseModel):
-    location = TextField()
-    image = TextField()
-
-
 class InfoMat(BaseModel):
     title = TextField()
-    author = TextField()
+    author = JSONField()
     publication_year = TextField()
-    cover_image = TextField()
-    summary = TextField()
-    tags = JSONField()
-    location = ForeignKeyField(Location, backref='infoMats')
+    cover_image = TextField()  # capa
+    abstract = TextField()  # resumo
+    matters = JSONField()  # assuntos
+    tags = JSONField()  # tags
+    number_of_pages = TextField()
+    isbn = TextField()
+    issn = TextField()
+    typer = TextField()  # Tipo de material
+    language = TextField(default="PT-BR")
+    publisher = TextField()  # Editora
+    volume = IntegerField()
+    series = TextField()
+    edition = TextField()
+    reprint_update = TextField()
 
 
 class Review(BaseModel):

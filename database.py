@@ -69,6 +69,7 @@ class Review(BaseModel):
 
 class InfoMatList(BaseModel):
     name = TextField()
+    user = ForeignKeyField(Users, backref='infoMatLists')
 
 
 class ListInforMats(BaseModel):

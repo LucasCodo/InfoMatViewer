@@ -1,6 +1,5 @@
 from peewee import *
 from time import time as timestamp
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from enumerations import Permissions
 import json
 from configs import AppSettings

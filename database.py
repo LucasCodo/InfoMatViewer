@@ -3,18 +3,11 @@ from time import time as timestamp
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from enumerations import Permissions
 import json
+from configs import AppSettings
 
 
-class DatabaseSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
-    database: str
-    port: int
-    password: str
-    host: str
-    user: str
-
-
-db_settings = dict(DatabaseSettings())
+db_settings = dict(AppSettings())
+db_settings.pop("admin_email")
 database = PostgresqlDatabase(**db_settings)
 FORMATTING_DATE = "%d-%m-%Y"
 
@@ -38,7 +31,7 @@ class JSONField(TextField):
 class Users(BaseModel):
     email = TextField(unique=True)
     disable = BooleanField(default=False)
-    permissions = JSONField(default={[Permissions.VIEW_INFO_MAT]})
+    permissions = JSONField(default={Permissions.VIEW_INFO_MAT})
 
 
 class InfoMat(BaseModel):
@@ -279,7 +272,7 @@ if __name__ == "__main__":
         print("Usuário não encontrado.")
 
     # Atualizar informações de um usuário
-    update_user(email="new_email@example.com", disable=True)
+    update_user(email="user@example.com", disable=True)
 
     # Excluir um usuário pelo ID
     deleted = delete_user(new_user.id)
@@ -339,7 +332,24 @@ if __name__ == "__main__":
 
     # Atualizar informações de uma lista de InfoMat
     update_info_mat_list(new_info_mat_list.id, name="Updated List Name")
-
+    info_mat = create_info_mat(
+        title="Sample Book",
+        author={"name": "John Doe", "affiliation": "Example University"},
+        publication_year="2023",
+        cover_image="cover_image_url",
+        abstract="This is a sample book abstract.",
+        matters=["Science", "Technology"],
+        tags=["Sample", "Book"],
+        number_of_pages="200",
+        isbn="1234567890",
+        issn="9876543210",
+        typer="Book",
+        publisher="Example Publishing",
+        volume=1,
+        series="Sample Series",
+        edition="1st Edition",
+        reprint_update="2023-09-20"
+    )
     add_info_mat_to_list(info_mat, new_info_mat_list)
 
     # Remover uma InfoMat da lista

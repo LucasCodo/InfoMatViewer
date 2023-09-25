@@ -333,7 +333,7 @@ if __name__ == "__main__":
     update_info_mat_list(new_info_mat_list.id, name="Updated List Name")
     info_mat = create_info_mat(
         title="Sample Book",
-        author={"name": "John Doe", "affiliation": "Example University"},
+        author=[{"name": "John Doe", "affiliation": "Example University"}],
         publication_year="2023",
         cover_image="cover_image_url",
         abstract="This is a sample book abstract.",

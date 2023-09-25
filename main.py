@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from configs import AppSettings
 import database
+from response_models import *
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -24,8 +25,13 @@ async def info_mat():
 
 
 @app.get("/informational-material/{info_mat_id}/details")
-async def info_mat(info_mat_id: int):
+async def info_mat_details(info_mat_id: int):
     return database.read_info_mat(info_mat_id)
+
+
+@app.get("/search/informational-material/", response_model=InfoMat)
+async def search_info_mat(value: str):
+    return database.search_info_mat(value)
 
 
 @app.get("/list-informational-material/{cod}")

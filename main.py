@@ -29,7 +29,7 @@ async def info_mat_details(info_mat_id: int):
     return database.read_info_mat(info_mat_id)
 
 
-@app.get("/search/informational-material/", response_model=InfoMat)
+@app.get("/search/informational-material/", response_model=list[InfoMat])
 async def search_info_mat(value: str):
     return database.search_info_mat(value)
 

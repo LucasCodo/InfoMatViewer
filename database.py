@@ -155,7 +155,7 @@ def read_info_mat(info_mat_id):
 # Função para ler um registro InfoMat que corresponda a um valor em qualquer campo
 def search_info_mat(query):
     try:
-        _info_mat = InfoMat.get(
+        _info_mat = InfoMat.select().where(
             (fn.CONCAT(
                 InfoMat.title,
                 InfoMat.author.cast('text'),

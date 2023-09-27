@@ -43,6 +43,6 @@ async def get_public_list_informational_material(cod: int):
 
 @app.get("/list-informational-material")
 async def list_informational_material():
-    return database.read_info_mat_list(AppSettings.admin_email)
+    return database.read_info_mat_list(AppSettings().admin_email)
 
 

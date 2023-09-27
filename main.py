@@ -1,3 +1,4 @@
+import configs
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -35,13 +36,13 @@ async def search_info_mat(value: str):
 
 
 @app.get("/list-informational-material/{cod}")
-async def info_mat(cod: int):
+async def get_public_list_informational_material(cod: int):
     print(cod)
     return {}
 
 
 @app.get("/list-informational-material")
-async def info_mat():
-    return {}
+async def list_informational_material():
+    return database.read_info_mat_list(AppSettings.admin_email)
 
 

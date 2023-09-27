@@ -1,5 +1,7 @@
 from peewee import *
 from time import time as timestamp
+
+import enumerations
 from enumerations import Permissions
 import json
 from configs import AppSettings
@@ -256,6 +258,8 @@ def remove_info_mat_from_list(info_mat_id, info_mat_list_id):
                                             (InfoMatListItems.id_list == info_mat_list_id))
     query.execute()
 
+
+new_user = create_user(AppSettings().admin_email, permissions=[Permissions.MANAGE_USERS.value])
 
 if __name__ == "__main__":
     # Exemplos de uso:

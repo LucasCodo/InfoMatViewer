@@ -1,7 +1,6 @@
 from peewee import *
 from time import time as timestamp
 
-import enumerations
 from enumerations import Permissions
 import json
 from configs import AppSettings

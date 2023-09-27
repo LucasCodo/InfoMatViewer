@@ -259,7 +259,10 @@ def remove_info_mat_from_list(info_mat_id, info_mat_list_id):
     query.execute()
 
 
-new_user = create_user(AppSettings().admin_email, permissions=[Permissions.MANAGE_USERS.value])
+try:
+    new_user = create_user(AppSettings().admin_email, permissions=[Permissions.MANAGE_USERS.value])
+except IntegrityError:
+    pass
 
 if __name__ == "__main__":
     # Exemplos de uso:

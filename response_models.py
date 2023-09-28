@@ -19,3 +19,15 @@ class InfoMat(BaseModel):
     series: str
     edition: str
     reprint_update: str
+
+
+class InfoMatBasic(BaseModel):
+    title: str
+    author: list
+    cover_image: str
+    rating: float
+
+
+class InfoMatList(BaseModel):
+    name: str
+    items: list

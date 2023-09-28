@@ -43,3 +43,13 @@ async def get_public_list_informational_material(cod: int):
 @app.get("/list-informational-material")
 async def list_informational_material():
     return database.read_info_mat_list(AppSettings().admin_email)
+
+
+@app.post("/informational-material/")
+async def add_info_mat(new_info_mat: InfoMat):
+    return database.create_info_mat(**dict(new_info_mat))
+
+
+@app.post("/list-informational-material")
+async def create_list_info_mat(list_info_mat: InfoMatList):
+    return list_info_mat

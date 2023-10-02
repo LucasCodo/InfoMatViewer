@@ -31,7 +31,7 @@ class JSONField(TextField):
 class Users(BaseModel):
     email = TextField(unique=True)
     disable = BooleanField(default=False)
-    permissions = JSONField(default={Permissions.VIEW_INFO_MAT})
+    permissions = JSONField(default={Permissions.VIEW_INFO_MAT.value})
 
 
 class InfoMat(BaseModel):
@@ -71,7 +71,7 @@ class InfoMatListItems(BaseModel):
     id_list = ForeignKeyField(InfoMatList, backref="listInforMats")
 
 
-database.create_tables([Users, InfoMat, InfoMatList, InfoMatListItems])
+database.create_tables([Users, InfoMat, InfoMatList, InfoMatListItems, Review])
 
 
 # CRUD Users begin
@@ -79,7 +79,8 @@ database.create_tables([Users, InfoMat, InfoMatList, InfoMatListItems])
 def create_user(email, disable=False, permissions=None):
     if permissions is None:
         permissions = [Permissions.VIEW_INFO_MAT]
-    _user = Users.create(email=email, disable=disable, permissions=permissions)
+    _user, created = Users.get_or_create(email=email,
+                                defaults={"disable": disable, "permissions": permissions})
     return _user
 
 
@@ -258,6 +259,47 @@ def remove_info_mat_from_list(info_mat_id, info_mat_list_id):
     query.execute()
 
 
+# Função para adicionar ou atualizar um review
+def add_or_update_review(book_id, user_id, rating):
+    review, created = Review.get_or_create(book=book_id, user=user_id, defaults={'rating': rating})
+    if created:
+        return review
+    else:
+        review.rating = rating
+        review.save()
+        return review
+
+
+# Função para pegar uma Review de um usuario especifico
+def read_review(book_id, user_id):
+    try:
+        _review = Review.get(Review.book == book_id and Review.user == user_id)
+        return _review
+    except Review.DoesNotExist:
+        return None
+
+
+# Função para pegar a média de avaliação de um livro
+def get_avg_review(book_id):
+    # Calcula a média do rating para um livro específico
+    average_rating = (
+        Review
+        .select(fn.AVG(Review.rating).alias('avg_rating'))
+        .where(Review.book == book_id)
+        .scalar()  # Para obter o valor médio como um número em vez de um objeto
+    )
+    return average_rating
+
+
+def delete_review(book_id, user_id):
+    try:
+        _review = Review.get(Review.book == book_id and Review.user == user_id)
+        _review.delete_instance()
+        return True
+    except Review.DoesNotExist:
+        return False
+
+
 try:
     new_user = create_user(AppSettings().admin_email, permissions=[Permissions.MANAGE_USERS.value])
 except IntegrityError:
@@ -267,8 +309,9 @@ if __name__ == "__main__":
     # Exemplos de uso:
 
     # Criar um novo usuário
-    new_user = create_user("user@example.com", permissions=["VIEW_INFO_MAT", "EDIT_INFO_MAT"])
-
+    new_user = create_user("user@example.com", permissions=[Permissions.VIEW_INFO_MAT.value,
+                                                            Permissions.EDIT_INFO_MAT.value])
+    print(new_user)
     # Ler um usuário pelo ID
     user = read_user(new_user.email)
     if user:
@@ -366,3 +409,64 @@ if __name__ == "__main__":
         print("Lista de InfoMat excluída com sucesso.")
     else:
         print("Lista de InfoMat não encontrada.")
+
+
+    # Testando a função add_or_update_review
+    def test_add_or_update_review():
+        book_id = 2  # Substitua pelo ID do livro correto
+        user_id = 2  # Substitua pelo ID do usuário correto
+        rating = 3.8  # Substitua pela classificação desejada
+
+        # Adicionar ou atualizar uma revisão
+        review = add_or_update_review(book_id, user_id, rating)
+
+        # Verificar se a revisão foi adicionada ou atualizada corretamente
+        assert review.rating == rating
+
+
+    test_add_or_update_review()
+
+
+    # Testando a função read_review
+    def test_read_review():
+        book_id = 2  # Substitua pelo ID do livro correto
+        user_id = 2  # Substitua pelo ID do usuário correto
+
+        # Ler uma revisão
+        review = read_review(book_id, user_id)
+
+        # Verificar se a revisão foi lida corretamente
+        assert review is not None
+
+
+    test_read_review()
+
+
+    # Testando a função get_avg_review
+    def test_get_avg_review():
+        book_id = 2  # Substitua pelo ID do livro correto
+
+        # Obter a média da revisão
+        avg_rating = get_avg_review(book_id)
+
+        # Verificar se a média foi calculada corretamente
+        print(f"A media de avaliação do livro {book_id} é", avg_rating)
+        assert avg_rating is not None
+
+
+    test_get_avg_review()
+
+
+    # Testando a função delete_review
+    def test_delete_review():
+        book_id = 2  # Substitua pelo ID do livro correto
+        user_id = 2  # Substitua pelo ID do usuário correto
+
+        # Deletar uma revisão
+        result = delete_review(book_id, user_id)
+
+        # Verificar se a revisão foi excluída corretamente
+        assert result is True
+
+
+    test_delete_review()

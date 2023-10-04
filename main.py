@@ -53,3 +53,8 @@ async def add_info_mat(new_info_mat: InfoMat):
 @app.post("/list-informational-material")
 async def create_list_info_mat(list_info_mat: InfoMatList):
     return list_info_mat
+
+
+@app.get("/list-informational-material/user/{user_id}", response_model=list[InfoMatList])
+async def get_my_lists(user_id: int):  # mudar para email no futuro
+    return database.get_my_info_mat_lists(user_id)

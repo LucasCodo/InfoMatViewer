@@ -28,6 +28,10 @@ class InfoMatBasic(BaseModel):
     rating: float
 
 
+class InfoMatListItems(BaseModel):
+    infoMat: InfoMat
+
+
 class InfoMatList(BaseModel):
     name: str
-    items: list
+    listInfoMats: list[InfoMatListItems]

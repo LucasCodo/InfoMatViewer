@@ -67,8 +67,8 @@ class InfoMatList(BaseModel):
 
 
 class InfoMatListItems(BaseModel):
-    infoMat = ForeignKeyField(InfoMat, backref='listInforMats')
-    id_list = ForeignKeyField(InfoMatList, backref="listInforMats")
+    infoMat = ForeignKeyField(InfoMat, backref='listInfoMats')
+    id_list = ForeignKeyField(InfoMatList, backref="listInfoMats")
 
 
 database.create_tables([Users, InfoMat, InfoMatList, InfoMatListItems, Review])
@@ -80,7 +80,10 @@ def create_user(email, disable=False, permissions=None):
     if permissions is None:
         permissions = [Permissions.VIEW_INFO_MAT]
     _user, created = Users.get_or_create(email=email,
-                                defaults={"disable": disable, "permissions": permissions})
+                                         defaults={
+                                             "disable": disable,
+                                             "permissions": permissions}
+                                         )
     return _user
 
 
@@ -218,6 +221,29 @@ def read_info_mat_list(user_id):
     try:
         _info_mat_list = InfoMatList.get(InfoMatList.user == user_id)
         return _info_mat_list
+    except InfoMatList.DoesNotExist:
+        return None
+
+
+# Função para pegar as listas de um usuario especifico e itens da mesma
+def get_my_info_mat_lists(user_id): # no futuro alterar para email
+    try:
+        _info_mat_lists = (InfoMatList.select().where(
+            InfoMatList.user == user_id
+        ).join(
+            InfoMatListItems, on=(InfoMatListItems.id_list == InfoMatList.id)
+        ).join(
+            InfoMat, on=(InfoMatListItems.infoMat == InfoMat.id)
+        ).order_by(InfoMatList.id, InfoMatListItems.id))
+
+        for _info_mat_list in _info_mat_lists:
+            print("Lista:", _info_mat_list.name)
+            print("Itens:")
+            #print(dir(_info_mat_list))
+            for item in _info_mat_list.listInfoMats:
+                # print(dir(item))
+                print(f"  - {item.infoMat.title}")
+        return _info_mat_lists
     except InfoMatList.DoesNotExist:
         return None
 
@@ -410,7 +436,6 @@ if __name__ == "__main__":
     else:
         print("Lista de InfoMat não encontrada.")
 
-
     # Testando a função add_or_update_review
     def test_add_or_update_review():
         book_id = 2  # Substitua pelo ID do livro correto
@@ -426,7 +451,6 @@ if __name__ == "__main__":
 
     test_add_or_update_review()
 
-
     # Testando a função read_review
     def test_read_review():
         book_id = 2  # Substitua pelo ID do livro correto
@@ -441,7 +465,6 @@ if __name__ == "__main__":
 
     test_read_review()
 
-
     # Testando a função get_avg_review
     def test_get_avg_review():
         book_id = 2  # Substitua pelo ID do livro correto
@@ -455,7 +478,6 @@ if __name__ == "__main__":
 
 
     test_get_avg_review()
-
 
     # Testando a função delete_review
     def test_delete_review():

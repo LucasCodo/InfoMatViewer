@@ -16,6 +16,7 @@ pydantic = "^2.3.0"
 pydantic-settings = "^2.0.3"
 google-auth = "^2.23.0"
 requests = "^2.31.0"
+email-validator = "^2.0.0.post2"
 
 
 [build-system]

@@ -1,3 +1,4 @@
+import pydantic
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -40,11 +41,6 @@ async def get_public_list_informational_material(cod: int):
     return {}
 
 
-@app.get("/list-informational-material")
-async def list_informational_material():
-    return database.read_info_mat_list(AppSettings().admin_email)
-
-
 @app.post("/informational-material/")
 async def add_info_mat(new_info_mat: InfoMat):
     return database.create_info_mat(**dict(new_info_mat))
@@ -55,6 +51,6 @@ async def create_list_info_mat(list_info_mat: InfoMatList):
     return list_info_mat
 
 
-@app.get("/list-informational-material/user/{user_id}", response_model=list[InfoMatList])
-async def get_my_lists(user_id: int):  # mudar para email no futuro
-    return database.get_my_info_mat_lists(user_id)
+@app.get("/list-informational-material/user/{user_email}", response_model=list[InfoMatList])
+async def get_my_lists(user_email: EmailStr):
+    return database.get_my_info_mat_lists(database.read_user(user_email))

@@ -10,6 +10,3 @@ class AppSettings(BaseSettings):
     password: str
     host: str
     user: str
-
-
-

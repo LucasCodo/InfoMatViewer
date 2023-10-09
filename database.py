@@ -1,10 +1,10 @@
-from peewee import *
+import json
 from time import time as timestamp
 
-from enumerations import Permissions
-import json
-from configs import AppSettings
+from peewee import *
 
+from configs import AppSettings
+from enumerations import Permissions
 
 db_settings = dict(AppSettings())
 db_settings.pop("admin_email")
@@ -118,6 +118,8 @@ def delete_user(user_id):
         return True
     else:
         return False
+
+
 # CRUD Users end
 
 
@@ -206,6 +208,8 @@ def delete_info_mat(info_mat_id):
         return True
     else:
         return False
+
+
 # CRUD InfoMat end
 
 
@@ -226,7 +230,7 @@ def read_info_mat_list(user_id):
 
 
 # Função para pegar as listas de um usuario especifico e itens da mesma
-def get_my_info_mat_lists(user_id): # no futuro alterar para email
+def get_my_info_mat_lists(user_id):  # no futuro alterar para email
     try:
         _info_mat_lists = (InfoMatList.select().where(
             InfoMatList.user == user_id
@@ -239,7 +243,7 @@ def get_my_info_mat_lists(user_id): # no futuro alterar para email
         for _info_mat_list in _info_mat_lists:
             print("Lista:", _info_mat_list.name)
             print("Itens:")
-            #print(dir(_info_mat_list))
+            # print(dir(_info_mat_list))
             for item in _info_mat_list.listInfoMats:
                 # print(dir(item))
                 print(f"  - {item.infoMat.title}")

@@ -63,11 +63,11 @@ class Review(BaseModel):
 class InfoMatList(BaseModel):
     name = TextField()
     user = ForeignKeyField(Users, backref='infoMatLists')
-    public = BooleanField(default=False)
+    observable = BooleanField(default=False)
 
 
 class InfoMatListItems(BaseModel):
-    infoMat = ForeignKeyField(InfoMat, backref='listInfoMats')
+    infoMat = ForeignKeyField(InfoMat, backref='listInfoMatsbook')
     id_list = ForeignKeyField(InfoMatList, backref="listInfoMats")
 
 
@@ -269,8 +269,8 @@ def delete_info_mat(info_mat_id):
 
 # CRUD begin
 # Função para criar uma nova lista de InfoMat
-def create_info_mat_list(name, user_id, public=False):
-    _info_mat_list = InfoMatList.create(name=name, user=user_id, public=public)
+def create_info_mat_list(name, user_id, observable=False):
+    _info_mat_list = InfoMatList.create(name=name, user=user_id, observable=observable)
     return _info_mat_list
 
 
@@ -298,7 +298,7 @@ def get_my_info_mat_lists(user_id):  # no futuro alterar para email
             print("Lista:", _info_mat_list.name)
             print("Itens:")
             # print(dir(_info_mat_list))
-            for item in _info_mat_list.listInfoMats:
+            for item in _info_mat_list.listInfoMatsbook:
                 # print(dir(item))
                 print(f"  - {item.infoMat.title}")
         return _info_mat_lists
@@ -307,13 +307,13 @@ def get_my_info_mat_lists(user_id):  # no futuro alterar para email
 
 
 # Função para atualizar informações de uma lista de InfoMat
-def update_info_mat_list(info_mat_list_id, name=None, public=None):
+def update_info_mat_list(info_mat_list_id, name=None, observable=None):
     _info_mat_list = read_info_mat_list(info_mat_list_id)
     if _info_mat_list:
         if name is not None:
             _info_mat_list.name = name
-        if public is not None:
-            _info_mat_list.public = public
+        if observable is not None:
+            _info_mat_list.observable = observable
         _info_mat_list.save()
         return _info_mat_list
     else:
@@ -341,6 +341,24 @@ def remove_info_mat_from_list(info_mat_id, info_mat_list_id):
     query = InfoMatListItems.delete().where((InfoMatListItems.infoMat == info_mat_id) &
                                             (InfoMatListItems.id_list == info_mat_list_id))
     query.execute()
+
+
+def get_public_info_mat_list(info_mat_list_id: int):
+    try:
+        _info_mat_list = (InfoMatList
+                          .select(InfoMatList.name)
+                          .where((InfoMatList.id == info_mat_list_id)
+                                 & (InfoMatList.observable == True))
+                          .get())
+        _info_mat_list_items = (InfoMatListItems
+                                .select()
+                                .join(InfoMat)
+                                .where(InfoMatListItems.id_list == info_mat_list_id))
+        _info_mat_list.listInfoMats = list(map(lambda x: x.infoMat, _info_mat_list_items))
+
+        return _info_mat_list
+    except InfoMatList.DoesNotExist:
+        return None
 
 
 try:

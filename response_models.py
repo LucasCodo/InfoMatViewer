@@ -28,10 +28,17 @@ class InfoMatBasic(BaseModel):
     rating: float
 
 
-class InfoMatListItems(BaseModel):
-    infoMat: InfoMat
+class InfoMatBasicWithOutRating(BaseModel):
+    title: str
+    author: list
+    cover_image: str
 
 
 class InfoMatList(BaseModel):
     name: str
-    listInfoMats: list[InfoMatListItems]
+    listInfoMats: list[InfoMatBasicWithOutRating]
+
+
+class InfoMatListPost(BaseModel):
+    name: str
+    listInfoMats: list[int]

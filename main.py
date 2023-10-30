@@ -36,10 +36,9 @@ async def search_info_mat(value: str):
     return database.search_info_mat(value)
 
 
-@app.get("/list-informational-material/{cod}")
+@app.get("/list-informational-material/{cod}", response_model=InfoMatList)
 async def get_public_list_informational_material(cod: int):
-    print(cod)
-    return {}
+    return database.get_public_info_mat_list(cod)
 
 
 @app.post("/informational-material/")
@@ -48,7 +47,7 @@ async def add_info_mat(new_info_mat: InfoMat):
 
 
 @app.post("/list-informational-material")
-async def create_list_info_mat(list_info_mat: InfoMatList):
+async def create_list_info_mat(list_info_mat: InfoMatListPost):
     return list_info_mat
 
 

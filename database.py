@@ -74,6 +74,47 @@ class InfoMatListItems(BaseModel):
 database.create_tables([Users, InfoMat, InfoMatList, InfoMatListItems, Review])
 
 
+# Função para adicionar ou atualizar um review
+def add_or_update_review(book_id, user_id, rating):
+    review, created = Review.get_or_create(book=book_id, user=user_id, defaults={'rating': rating})
+    if created:
+        return review
+    else:
+        review.rating = rating
+        review.save()
+        return review
+
+
+# Função para pegar uma Review de um usuario especifico
+def read_review(book_id, user_id):
+    try:
+        _review = Review.get(Review.book == book_id and Review.user == user_id)
+        return _review
+    except Review.DoesNotExist:
+        return None
+
+
+# Função para pegar a média de avaliação de um livro
+def get_avg_review(book_id):
+    # Calcula a média do rating para um livro específico
+    average_rating = (
+        Review
+        .select(fn.AVG(Review.rating).alias('avg_rating'))
+        .where(Review.book == book_id)
+        .scalar()  # Para obter o valor médio como um número em vez de um objeto
+    )
+    return average_rating
+
+
+def delete_review(book_id, user_id):
+    try:
+        _review = Review.get(Review.book == book_id and Review.user == user_id)
+        _review.delete_instance()
+        return True
+    except Review.DoesNotExist:
+        return False
+
+
 # CRUD Users begin
 # Função para criar um novo usuário
 def create_user(email, disable=False, permissions=None):
@@ -154,6 +195,19 @@ def create_info_mat(title, author, publication_year, cover_image, abstract, matt
 def read_info_mat(info_mat_id):
     try:
         _info_mat = InfoMat.get(InfoMat.id == info_mat_id)
+        return _info_mat
+    except InfoMat.DoesNotExist:
+        return None
+
+
+def read_info_mat_basic(info_mat_id):
+    try:
+        _info_mat: InfoMat = InfoMat.get(InfoMat.id == info_mat_id)
+        _rating = get_avg_review(_info_mat.id)
+        if _rating:
+            _info_mat.rating = _rating
+        else:
+            _info_mat.rating = 0
         return _info_mat
     except InfoMat.DoesNotExist:
         return None
@@ -287,47 +341,6 @@ def remove_info_mat_from_list(info_mat_id, info_mat_list_id):
     query = InfoMatListItems.delete().where((InfoMatListItems.infoMat == info_mat_id) &
                                             (InfoMatListItems.id_list == info_mat_list_id))
     query.execute()
-
-
-# Função para adicionar ou atualizar um review
-def add_or_update_review(book_id, user_id, rating):
-    review, created = Review.get_or_create(book=book_id, user=user_id, defaults={'rating': rating})
-    if created:
-        return review
-    else:
-        review.rating = rating
-        review.save()
-        return review
-
-
-# Função para pegar uma Review de um usuario especifico
-def read_review(book_id, user_id):
-    try:
-        _review = Review.get(Review.book == book_id and Review.user == user_id)
-        return _review
-    except Review.DoesNotExist:
-        return None
-
-
-# Função para pegar a média de avaliação de um livro
-def get_avg_review(book_id):
-    # Calcula a média do rating para um livro específico
-    average_rating = (
-        Review
-        .select(fn.AVG(Review.rating).alias('avg_rating'))
-        .where(Review.book == book_id)
-        .scalar()  # Para obter o valor médio como um número em vez de um objeto
-    )
-    return average_rating
-
-
-def delete_review(book_id, user_id):
-    try:
-        _review = Review.get(Review.book == book_id and Review.user == user_id)
-        _review.delete_instance()
-        return True
-    except Review.DoesNotExist:
-        return False
 
 
 try:

@@ -21,12 +21,12 @@ async def read_item(request: Request):
                                                      "admin_email": AppSettings().admin_email})
 
 
-@app.get("/informational-material/{info_mat_id}")
-async def info_mat():
-    return {}
+@app.get("/informational-material/{info_mat_id}", response_model=InfoMatBasic)
+async def info_mat(info_mat_id: int):
+    return database.read_info_mat_basic(info_mat_id)
 
 
-@app.get("/informational-material/{info_mat_id}/details")
+@app.get("/informational-material/{info_mat_id}/details", response_model=InfoMat)
 async def info_mat_details(info_mat_id: int):
     return database.read_info_mat(info_mat_id)
 

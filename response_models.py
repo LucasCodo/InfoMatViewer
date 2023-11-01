@@ -36,6 +36,7 @@ class InfoMatBasicWithOutRating(BaseModel):
 
 class InfoMatList(BaseModel):
     name: str
+    observable: bool
     listInfoMats: list[InfoMatBasicWithOutRating]
 
 

@@ -41,4 +41,5 @@ class InfoMatList(BaseModel):
 
 class InfoMatListPost(BaseModel):
     name: str
-    listInfoMats: list[int]
+    public: bool
+    listIDsInfoMats: list[int]

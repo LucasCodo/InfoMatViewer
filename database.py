@@ -361,6 +361,18 @@ def get_public_info_mat_list(info_mat_list_id: int):
         return None
 
 
+def create_info_mat_list_and_add_items(_user_email, name: str, observable: bool,
+                                       list_id_info_mat: list[int]):
+    _user = read_user(_user_email)
+    _info_mat_list = create_info_mat_list(name=name, user_id=_user, observable=observable)
+    items = []
+    for item in list_id_info_mat:
+        element = add_info_mat_to_list(item, _info_mat_list)
+        items.append(element.infoMat)
+    _info_mat_list.listInfoMats = items
+    return _info_mat_list
+
+
 try:
     new_user = create_user(AppSettings().admin_email, permissions=[Permissions.MANAGE_USERS.value])
 except IntegrityError:

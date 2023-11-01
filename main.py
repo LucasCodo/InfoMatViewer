@@ -97,8 +97,8 @@ async def add_info_mat(new_info_mat: InfoMat):
     return database.create_info_mat(**dict(new_info_mat))
 
 
-@app.post("/list-informational-material")
-async def create_list_info_mat(list_info_mat: InfoMatListPost):
+@app.post("/list-informational-material", response_model=InfoMatList)
+async def create_list_info_mat(user_email: EmailStr, list_info_mat: InfoMatListPost):
     """
         Endpoint para criar uma nova lista de materiais informativos.
 
@@ -110,7 +110,9 @@ async def create_list_info_mat(list_info_mat: InfoMatListPost):
 
         TO DO: implementar função que cria uma infomatlist com nenhum ou varios itens.
     """
-    return list_info_mat
+    return database.create_info_mat_list_and_add_items(user_email, list_info_mat.name,
+                                                       list_info_mat.public,
+                                                       list_info_mat.listIDsInfoMats)
 
 
 @app.get("/list-informational-material/user/{user_email}", response_model=list[InfoMatList])

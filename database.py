@@ -350,10 +350,7 @@ def get_public_info_mat_list(info_mat_list_id: int):
                           .where((InfoMatList.id == info_mat_list_id)
                                  & (InfoMatList.observable == True))
                           .get())
-        _info_mat_list_items = (InfoMatListItems
-                                .select()
-                                .join(InfoMat)
-                                .where(InfoMatListItems.id_list == info_mat_list_id))
+        _info_mat_list_items = get_info_mat_list_items(info_mat_list_id)
         _info_mat_list.listInfoMats = list(map(lambda x: x.infoMat, _info_mat_list_items))
 
         return _info_mat_list

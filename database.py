@@ -283,6 +283,7 @@ def read_info_mat_list(user_id):
         return None
 
 
+# Função para pegar os items de uma lista de materiais informacionais
 def get_info_mat_list_items(list_id: int) -> list[InfoMat]:
     _info_mat_list_items = (InfoMatListItems
                             .select()

@@ -346,12 +346,11 @@ def remove_info_mat_from_list(info_mat_id, info_mat_list_id):
 def get_public_info_mat_list(info_mat_list_id: int):
     try:
         _info_mat_list = (InfoMatList
-                          .select(InfoMatList.name)
+                          .select()
                           .where((InfoMatList.id == info_mat_list_id)
                                  & (InfoMatList.observable == True))
                           .get())
-        _info_mat_list_items = get_info_mat_list_items(info_mat_list_id)
-        _info_mat_list.listInfoMats = list(map(lambda x: x.infoMat, _info_mat_list_items))
+        _info_mat_list.listInfoMats = get_info_mat_list_items(info_mat_list_id)
 
         return _info_mat_list
     except InfoMatList.DoesNotExist:

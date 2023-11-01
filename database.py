@@ -283,25 +283,25 @@ def read_info_mat_list(user_id):
         return None
 
 
+def get_info_mat_list_items(list_id: int) -> list[InfoMat]:
+    _info_mat_list_items = (InfoMatListItems
+                            .select()
+                            .join(InfoMat)
+                            .where(InfoMatListItems.id_list == list_id))
+    return list(map(lambda x: x.infoMat, _info_mat_list_items))
+
+
 # Função para pegar as listas de um usuario especifico e itens da mesma
 def get_my_info_mat_lists(user_id):  # no futuro alterar para email
     try:
-        _info_mat_lists = (InfoMatList.select().where(
+        query = (InfoMatList.select().where(
             InfoMatList.user == user_id
-        ).join(
-            InfoMatListItems, on=(InfoMatListItems.id_list == InfoMatList.id)
-        ).join(
-            InfoMat, on=(InfoMatListItems.infoMat == InfoMat.id)
-        ).order_by(InfoMatList.id, InfoMatListItems.id))
-
-        for _info_mat_list in _info_mat_lists:
-            print("Lista:", _info_mat_list.name)
-            print("Itens:")
-            # print(dir(_info_mat_list))
-            for item in _info_mat_list.listInfoMatsbook:
-                # print(dir(item))
-                print(f"  - {item.infoMat.title}")
-        return _info_mat_lists
+        ))
+        list_info_mat_list = []
+        for _info_mat_list in query:
+            _info_mat_list.listInfoMats = get_info_mat_list_items(_info_mat_list.id)
+            list_info_mat_list.append(_info_mat_list)
+        return list_info_mat_list
     except InfoMatList.DoesNotExist:
         return None
 

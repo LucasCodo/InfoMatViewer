@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional, Union
 
 
 class InfoMat(BaseModel):
@@ -44,3 +45,7 @@ class InfoMatListPost(BaseModel):
     name: str
     public: bool
     listIDsInfoMats: list[int]
+
+
+class JsonQuery(BaseModel):
+    query: dict[str, str] | dict[str, list[dict]]

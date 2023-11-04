@@ -1,6 +1,8 @@
 import json
 from time import time as timestamp
+from functools import reduce
 
+import peewee
 from peewee import *
 
 from configs import AppSettings
@@ -214,7 +216,7 @@ def read_info_mat_basic(info_mat_id):
 
 
 # Função para ler um registro InfoMat que corresponda a um valor em qualquer campo
-def search_info_mat(query):
+def search_info_mat(string):
     try:
         _info_mat = InfoMat.select().where(
             (fn.CONCAT(
@@ -235,7 +237,7 @@ def search_info_mat(query):
                 InfoMat.series,
                 InfoMat.edition,
                 InfoMat.reprint_update
-            ).contains(query))
+            ).contains(string))
         )
         return _info_mat
     except InfoMat.DoesNotExist:
@@ -295,11 +297,11 @@ def get_info_mat_list_items(list_id: int) -> list[InfoMat]:
 # Função para pegar as listas de um usuario especifico e itens da mesma
 def get_my_info_mat_lists(user_id):  # no futuro alterar para email
     try:
-        query = (InfoMatList.select().where(
+        _query = (InfoMatList.select().where(
             InfoMatList.user == user_id
         ))
         list_info_mat_list = []
-        for _info_mat_list in query:
+        for _info_mat_list in _query:
             _info_mat_list.listInfoMats = get_info_mat_list_items(_info_mat_list.id)
             list_info_mat_list.append(_info_mat_list)
         return list_info_mat_list
@@ -339,9 +341,9 @@ def add_info_mat_to_list(info_mat_id, info_mat_list_id):
 
 # Função para remover uma InfoMat de uma lista
 def remove_info_mat_from_list(info_mat_id, info_mat_list_id):
-    query = InfoMatListItems.delete().where((InfoMatListItems.infoMat == info_mat_id) &
-                                            (InfoMatListItems.id_list == info_mat_list_id))
-    query.execute()
+    _query = InfoMatListItems.delete().where((InfoMatListItems.infoMat == info_mat_id) &
+                                             (InfoMatListItems.id_list == info_mat_list_id))
+    _query.execute()
 
 
 def get_public_info_mat_list(info_mat_list_id: int):
@@ -368,6 +370,35 @@ def create_info_mat_list_and_add_items(_user_email, name: str, observable: bool,
         items.append(element.infoMat)
     _info_mat_list.listInfoMats = items
     return _info_mat_list
+
+
+# Boolean search
+# Função para construir a query com base no JSON
+def build_query(query_conditions):
+    if 'and' in query_conditions:
+        conditions = []
+        for condition in query_conditions["and"]:
+            for k, v in condition.items():
+                conditions.append(build_query({k: v}))
+        return reduce(lambda x, y: x & y, conditions)
+    elif "or" in query_conditions:
+        conditions = []
+        for condition in query_conditions["or"]:
+            for k, v in condition.items():
+                conditions.append(build_query({k: v}))
+        return reduce(lambda x, y: x | y, conditions)
+    elif "not" in query_conditions:
+        for k, v in query_conditions["not"].items():
+            return reduce(lambda x:  x, [~fn.CONCAT(getattr(InfoMat, k)).contains(v)])
+    else:
+        k, v = [*tuple(*query_conditions.items())]
+        return reduce(lambda x:  x, [fn.CONCAT(getattr(InfoMat, k)).contains(v)])
+
+
+
+# Função que faz a busca da query gerada do json
+def boolean_search(json_data):
+    return InfoMat.select().where(build_query(json_data['query']))
 
 
 try:
@@ -529,10 +560,10 @@ if __name__ == "__main__":
         user_id = 2  # Substitua pelo ID do usuário correto
 
         # Deletar uma revisão
-        result = delete_review(book_id, user_id)
+        _result = delete_review(book_id, user_id)
 
         # Verificar se a revisão foi excluída corretamente
-        assert result is True
+        assert _result is True
 
 
     test_delete_review()

@@ -334,13 +334,16 @@ def delete_info_mat_list(info_mat_list_id):
 
 
 # Função para adicionar uma InfoMat a uma lista
-def add_info_mat_to_list(info_mat_id, info_mat_list_id):
-    list_info_mat = InfoMatListItems.create(infoMat=info_mat_id, id_list=info_mat_list_id)
-    return list_info_mat
+def add_info_mat_item_to_list(info_mat_id, info_mat_list_id):
+    try:
+        list_info_mat = InfoMatListItems.create(infoMat=info_mat_id, id_list=info_mat_list_id)
+        return list_info_mat
+    except peewee.IntegrityError:
+        return None
 
 
 # Função para remover uma InfoMat de uma lista
-def remove_info_mat_from_list(info_mat_id, info_mat_list_id):
+def remove_info_mat_item_from_list(info_mat_id, info_mat_list_id):
     _query = InfoMatListItems.delete().where((InfoMatListItems.infoMat == info_mat_id) &
                                              (InfoMatListItems.id_list == info_mat_list_id))
     _query.execute()
@@ -366,8 +369,9 @@ def create_info_mat_list_and_add_items(_user_email, name: str, observable: bool,
     _info_mat_list = create_info_mat_list(name=name, user_id=_user, observable=observable)
     items = []
     for item in list_id_info_mat:
-        element = add_info_mat_to_list(item, _info_mat_list)
-        items.append(element.infoMat)
+        element = add_info_mat_item_to_list(item, _info_mat_list)
+        if element:
+            items.append(element.infoMat)
     _info_mat_list.listInfoMats = items
     return _info_mat_list
 
@@ -499,10 +503,10 @@ if __name__ == "__main__":
         edition="1st Edition",
         reprint_update="2023-09-20"
     )
-    add_info_mat_to_list(info_mat, new_info_mat_list)
+    add_info_mat_item_to_list(info_mat, new_info_mat_list)
 
     # Remover uma InfoMat da lista
-    remove_info_mat_from_list(info_mat, new_info_mat_list)
+    remove_info_mat_item_from_list(info_mat, new_info_mat_list)
 
     # Excluir uma lista de InfoMat pelo ID
     deleted = delete_info_mat_list(new_info_mat_list.id)

@@ -109,8 +109,6 @@ async def create_list_info_mat(user_email: EmailStr, list_info_mat: InfoMatListP
 
         Returns:
         - InfoMatListPost: Retorna os dados da lista de materiais informativos criada.
-
-        TO DO: implementar função que cria uma infomatlist com nenhum ou varios itens.
     """
     return database.create_info_mat_list_and_add_items(user_email, list_info_mat.name,
                                                        list_info_mat.public,
@@ -191,3 +189,40 @@ async def search_info_mat_with_boolean_expression(json_query: JsonQuery):
     except TypeError:
         return HTMLResponse(status_code=422)
     return list(resultado)
+
+
+@app.post("/informational-material/review")
+async def set_review(user_id: int, book_id: int, rating: float):
+    return database.add_or_update_review(user_id, book_id, rating)
+
+
+@app.delete("/informational-material/review")
+async def delete_review(user_id: int, book_id: int):
+    return database.delete_review(book_id, user_id)
+
+
+@app.delete("/informational-material")
+async def delete_informational_material(info_mat_id: int):
+    return database.delete_info_mat(info_mat_id)
+
+
+@app.delete("/list-informational-material")
+async def delete_list_informational_material(info_mat_list_id: int):
+    return database.delete_info_mat_list(info_mat_list_id)
+
+
+@app.delete("/list-informational-material/item")
+async def delete_item_list_informational_material(info_mat_id: int, info_mat_list_id: int):
+    return database.remove_info_mat_item_from_list(info_mat_id, info_mat_list_id)
+
+
+@app.post("/list-informational-material/item")
+async def add_item_list_informational_material(info_mat_id: int, info_mat_list_id: int):
+    return database.add_info_mat_item_to_list(info_mat_id, info_mat_list_id)
+
+
+@app.put("/informational-material")
+async def add_item_list_informational_material(_info_mat: InfoMatUpdateModel):
+    info_mat_id = _info_mat.id
+    return database.update_info_mat(info_mat_id, **_info_mat.attrs)
+

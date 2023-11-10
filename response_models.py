@@ -1,8 +1,9 @@
 from pydantic import BaseModel
-from typing import Optional, Union
+from typing import Any
 
 
 class InfoMat(BaseModel):
+    id: int
     title: str
     author: list
     publication_year: str
@@ -23,6 +24,7 @@ class InfoMat(BaseModel):
 
 
 class InfoMatBasic(BaseModel):
+    id: int
     title: str
     author: list
     cover_image: str
@@ -30,12 +32,14 @@ class InfoMatBasic(BaseModel):
 
 
 class InfoMatBasicWithOutRating(BaseModel):
+    id: int
     title: str
     author: list
     cover_image: str
 
 
 class InfoMatList(BaseModel):
+    id: int
     name: str
     observable: bool
     listInfoMats: list[InfoMatBasicWithOutRating]
@@ -49,3 +53,8 @@ class InfoMatListPost(BaseModel):
 
 class JsonQuery(BaseModel):
     query: dict[str, str] | dict[str, list[dict]]
+
+
+class InfoMatUpdateModel(BaseModel):
+    id: int
+    attrs: dict[str, Any]

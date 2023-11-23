@@ -28,8 +28,9 @@ async def delete_informational_material(info_mat_id: int):
 
 
 @router.put("/informational-material")
-async def update_informational_material(info_mat: InfoMat):
-    return database.update_info_mat(**dict(info_mat))
+async def update_informational_material(_info_mat: InfoMatUpdateModel):
+    info_mat_id = _info_mat.id
+    return database.update_info_mat(info_mat_id, **_info_mat.attrs)
 
 
 @router.get("/informational-material/all")

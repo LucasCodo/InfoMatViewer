@@ -55,7 +55,9 @@ def custom_openapi():
     )
 
     openapi_schema["info"]["x-logo"] = {
-        "url": "https://pbs.twimg.com/profile_images/1656379573150584832/05OE5sVJ_400x400.jpg"
+        "url": """
+        https://2.bp.blogspot.com/-y0qZLIReV2Y/WLq4CrDZPLI/AAAAAAAAbTQ/58sDpfiAvkozbJmrESasLFUMUtpd97cWQCEw/s1600/logo_ufma.png
+        """
     }
 
     # Adicionando descrições para todas as tags

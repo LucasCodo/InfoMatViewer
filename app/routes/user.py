@@ -64,7 +64,3 @@ async def add_item_list_informational_material(info_mat_id: int, info_mat_list_i
     return database.add_info_mat_item_to_list(info_mat_id, info_mat_list_id)
 
 
-@router.put("/informational-material")
-async def add_item_list_informational_material(_info_mat: InfoMatUpdateModel):
-    info_mat_id = _info_mat.id
-    return database.update_info_mat(info_mat_id, **_info_mat.attrs)

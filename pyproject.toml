@@ -19,6 +19,9 @@ requests = "^2.31.0"
 email-validator = "^2.0.0.post2"
 
 
+[tool.poetry.group.dev.dependencies]
+locust = "^2.19.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

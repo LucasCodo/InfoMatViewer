@@ -1,7 +1,7 @@
-from app.routes.pages import router as router_pages
-from app.routes.user import router as router_user
 from app.routes.admin import router as router_admin
+from app.routes.pages import router as router_pages
 from app.routes.search import router as router_search
+from app.routes.user import router as router_user
 
 # Lista de roteadores com suas respectivas tags e descrições
 routers = [

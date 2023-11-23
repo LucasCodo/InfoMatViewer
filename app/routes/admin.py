@@ -1,12 +1,8 @@
 
 from fastapi import APIRouter
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from pydantic import EmailStr
 
 from app import database
 from app.response_models import *
-
 
 router = APIRouter()
 

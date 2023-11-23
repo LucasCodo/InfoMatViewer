@@ -1,6 +1,6 @@
 import json
-from time import time as timestamp
 from functools import reduce
+from time import time as timestamp
 
 import peewee
 from peewee import *

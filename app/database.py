@@ -5,8 +5,8 @@ from functools import reduce
 import peewee
 from peewee import *
 
-from configs import AppSettings
-from enumerations import Permissions
+from app.configs import AppSettings
+from app.enumerations import Permissions
 
 db_settings = dict(AppSettings())
 db_settings.pop("admin_email")
@@ -191,6 +191,11 @@ def create_info_mat(title, author, publication_year, cover_image, abstract, matt
         reprint_update=reprint_update
     )
     return _info_mat
+
+
+def get_all_info_mat():
+    _info_mats = InfoMat.select()
+    return list(_info_mats)
 
 
 # Função para ler um registro InfoMat pelo ID
@@ -397,7 +402,6 @@ def build_query(query_conditions):
     else:
         k, v = [*tuple(*query_conditions.items())]
         return reduce(lambda x:  x, [fn.CONCAT(getattr(InfoMat, k)).contains(v)])
-
 
 
 # Função que faz a busca da query gerada do json

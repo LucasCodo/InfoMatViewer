@@ -5,12 +5,10 @@ from time import time as timestamp
 import peewee
 from peewee import *
 
-from app.configs import AppSettings
+from app.configs import DB_SETTINGS, APPSETTINGS
 from app.enumerations import Permissions
 
-db_settings = dict(AppSettings())
-db_settings.pop("admin_email")
-database = PostgresqlDatabase(**db_settings)
+database = PostgresqlDatabase(**DB_SETTINGS)
 FORMATTING_DATE = "%d-%m-%Y"
 
 
@@ -410,7 +408,7 @@ def boolean_search(json_data):
 
 
 try:
-    new_user = create_user(AppSettings().admin_email, permissions=[Permissions.MANAGE_USERS.value])
+    new_user = create_user(APPSETTINGS.admin_email, permissions=[Permissions.MANAGE_USERS.value])
 except IntegrityError:
     pass
 

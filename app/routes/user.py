@@ -3,6 +3,7 @@ from pydantic import EmailStr
 
 from app import database
 from app.response_models import *
+from app.auth import *
 
 router = APIRouter()
 
@@ -64,3 +65,12 @@ async def add_item_list_informational_material(info_mat_id: int, info_mat_list_i
     return database.add_info_mat_item_to_list(info_mat_id, info_mat_list_id)
 
 
+# Rota protegida que requer autenticação com um token do Google
+@router.get("/me/")
+async def protected_resource(user_info: dict = Depends(verify_google_token)):
+    # Você pode acessar as informações do usuário aqui
+    user_email = user_info['email']
+    user_name = user_info["name"]
+    org = user_info["hd"]
+
+    return dict(user_info)

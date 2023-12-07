@@ -10,3 +10,11 @@ class AppSettings(BaseSettings):
     password: str
     host: str
     user: str
+    GOOGLE_CLIENT_ID: str
+
+
+APPSETTINGS = AppSettings()
+
+DB_SETTINGS = dict(APPSETTINGS)
+DB_SETTINGS.pop("admin_email")
+DB_SETTINGS.pop("GOOGLE_CLIENT_ID")

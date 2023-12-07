@@ -117,7 +117,7 @@ def delete_review(book_id, user_id):
 
 # CRUD Users begin
 # Função para criar um novo usuário
-def create_user(email, disable=False, permissions=None):
+def create_user(email, disable=False, permissions=None) -> Users:
     if permissions is None:
         permissions = [Permissions.VIEW_INFO_MAT]
     _user, created = Users.get_or_create(email=email,

@@ -1,11 +1,16 @@
+from cachetools import cached, TTLCache
 from fastapi import Depends, HTTPException
 from fastapi.security.oauth2 import OAuth2PasswordBearer
 from google.auth.transport import requests
 from google.oauth2 import id_token
+
 from app.configs import APPSETTINGS
+from app.database import create_user
+from app.response_models import User
 
 
-def verify_google_token(token: str = Depends(OAuth2PasswordBearer(tokenUrl="token"))):
+@cached(TTLCache(maxsize=256, ttl=1800))
+def verify_google_token(token: str = Depends(OAuth2PasswordBearer(tokenUrl="token"))) -> User:
     try:
         # Verificar o token do Google
         id_info = id_token.verify_oauth2_token(token, requests.Request(),
@@ -19,6 +24,9 @@ def verify_google_token(token: str = Depends(OAuth2PasswordBearer(tokenUrl="toke
             raise HTTPException(status_code=401, detail="The user is not part of this organization")
 
         # Retornar informações do usuário, se necessário
+        user = create_user(id_info['email'])
+        id_info["permissions"] = user.permissions
+        id_info["id"] = user.id
         return id_info
-    except ValueError as e:
+    except ValueError as _e:
         raise HTTPException(status_code=401, detail="Token inválido")

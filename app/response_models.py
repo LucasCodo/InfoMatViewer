@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class InfoMat(BaseModel):
@@ -59,3 +59,15 @@ class JsonQuery(BaseModel):
 class InfoMatUpdateModel(BaseModel):
     id: int
     attrs: dict[str, Any]
+
+
+class User(BaseModel):
+    id: int
+    hd: str
+    email: EmailStr
+    name: str
+    picture: str
+    given_name: str
+    family_name: str
+    locale: str = "pt-BR"
+    permissions: list

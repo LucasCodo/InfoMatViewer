@@ -6,7 +6,8 @@ import peewee
 from peewee import *
 
 from app.configs import DB_SETTINGS, APPSETTINGS
-from app.enumerations import Permissions
+from app.enumerations import PermissionsType
+from datetime import datetime, timedelta
 
 database = PostgresqlDatabase(**DB_SETTINGS)
 FORMATTING_DATE = "%d-%m-%Y"
@@ -31,7 +32,6 @@ class JSONField(TextField):
 class Users(BaseModel):
     email = TextField(unique=True)
     disable = BooleanField(default=False)
-    permissions = JSONField(default={Permissions.VIEW_INFO_MAT.value})
 
 
 class InfoMat(BaseModel):
@@ -71,7 +71,42 @@ class InfoMatListItems(BaseModel):
     id_list = ForeignKeyField(InfoMatList, backref="listInfoMats")
 
 
-database.create_tables([Users, InfoMat, InfoMatList, InfoMatListItems, Review])
+class Permissions(BaseModel):
+    user = ForeignKeyField(Users, backref="UserPermissions")
+    expiration_date = DateTimeField(
+        default=datetime.now, null=True)  # caso o valor seja nulo, a permissão não expira
+    permission_type = TextField()
+    disabled = BooleanField(default=False, null=True)
+
+
+database.create_tables([Users, InfoMat, InfoMatList, InfoMatListItems, Review, Permissions])
+
+
+def register_permission(_user: Users, permission_type: str,
+                        expiration_date: datetime | None = datetime.now()+timedelta(days=7),
+                        disabled: bool = False
+                        ) -> Permissions:
+    permission = Permissions(user=_user, permission_type=permission_type,
+                             expiration_date=expiration_date, disabled=disabled)
+    permission.save()
+    return permission
+
+
+def revoke_permission(permission: Permissions) -> None:
+    permission.disabled = False
+    permission.save()
+
+
+def get_permissions(_user: Users) -> list[Permissions]:
+    permissions = Permissions.select().where(
+        (_user.id == Permissions.user) &
+        (
+                (Permissions.expiration_date > datetime.now()) |
+                (Permissions.expiration_date in [None])
+        ) &
+        (Permissions.disabled == False)
+    )
+    return permissions
 
 
 # Função para adicionar ou atualizar um review
@@ -117,15 +152,19 @@ def delete_review(book_id, user_id):
 
 # CRUD Users begin
 # Função para criar um novo usuário
-def create_user(email, disable=False, permissions=None) -> Users:
-    if permissions is None:
-        permissions = [Permissions.VIEW_INFO_MAT]
+def create_user(email, disable=False) -> Users:
     _user, created = Users.get_or_create(email=email,
                                          defaults={
-                                             "disable": disable,
-                                             "permissions": permissions}
+                                             "disable": disable}
                                          )
     return _user
+
+
+def get_or_create_user(email, disable=False) -> tuple[Users, bool]:
+    return Users.get_or_create(email=email,
+                               defaults={
+                                   "disable": disable}
+                               )
 
 
 # Função para ler um usuário pelo email
@@ -280,9 +319,9 @@ def create_info_mat_list(name, user_id, observable=False):
 
 
 # Função para ler uma lista de InfoMat pelo ID
-def read_info_mat_list(user_id):
+def read_info_mat_list(_id):
     try:
-        _info_mat_list = InfoMatList.get(InfoMatList.user == user_id)
+        _info_mat_list = InfoMatList.get(InfoMatList.id == _id)
         return _info_mat_list
     except InfoMatList.DoesNotExist:
         return None
@@ -327,8 +366,9 @@ def update_info_mat_list(info_mat_list_id, name=None, observable=None):
 
 
 # Função para excluir uma lista de InfoMat pelo ID
-def delete_info_mat_list(info_mat_list_id):
-    _info_mat_list = read_info_mat_list(info_mat_list_id)
+def delete_info_mat_list(user_id, info_mat_list_id):
+    _info_mat_list = InfoMatList.get(
+        (InfoMatList.user == user_id) & (InfoMatList.id == info_mat_list_id))
     if _info_mat_list:
         _info_mat_list.delete_instance()
         return True
@@ -407,17 +447,16 @@ def boolean_search(json_data):
     return InfoMat.select().where(build_query(json_data['query']))
 
 
-try:
-    new_user = create_user(APPSETTINGS.admin_email, permissions=[Permissions.MANAGE_USERS.value])
-except IntegrityError:
-    pass
+new_user, admin_created = get_or_create_user(APPSETTINGS.admin_email)
+if admin_created:
+    register_permission(new_user, PermissionsType.FULL.name, expiration_date=None)
+
 
 if __name__ == "__main__":
     # Exemplos de uso:
 
     # Criar um novo usuário
-    new_user = create_user("user@example.com", permissions=[Permissions.VIEW_INFO_MAT.value,
-                                                            Permissions.EDIT_INFO_MAT.value])
+    new_user = create_user("user@example.com")
     print(new_user)
     # Ler um usuário pelo ID
     user = read_user(new_user.email)

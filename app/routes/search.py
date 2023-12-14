@@ -121,3 +121,8 @@ async def search_info_mat_with_boolean_expression(json_query: JsonQuery):
     except TypeError:
         return HTMLResponse(status_code=422)
     return list(resultado)
+
+
+@router.get("/informational-material", response_model=list[InfoMat])
+async def get_all_informational_material():
+    return database.get_all_info_mat()

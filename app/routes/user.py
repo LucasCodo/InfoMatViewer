@@ -4,13 +4,14 @@ from app import database
 from app.auth import *
 from app.response_models import *
 from app.response_models import User
+from typing import Annotated
 
 router = APIRouter()
 
 
 @router.post("/list-informational-material", response_model=InfoMatList)
 async def create_list_info_mat(list_info_mat: InfoMatListPost,
-                               user: User = Depends(verify_google_token)):
+                               user: Annotated[User, Depends(verify_google_token)]):
     """
         Endpoint para criar uma nova lista de materiais informativos.
 
@@ -27,7 +28,7 @@ async def create_list_info_mat(list_info_mat: InfoMatListPost,
 
 
 @router.get("/list-informational-material", response_model=list[InfoMatList])
-async def get_my_lists(user: User = Depends(verify_google_token)):
+async def get_my_lists(user: Annotated[User, Depends(verify_google_token)]):
     """
         Endpoint para obter as listas de materiais informativos de um usuário específico.
 
@@ -43,32 +44,37 @@ async def get_my_lists(user: User = Depends(verify_google_token)):
 
 @router.post("/informational-material/review")
 async def set_review(book_id: int, rating: float,
-                     user: User = Depends(verify_google_token)):
+                     user: Annotated[User, Depends(verify_google_token)]):
     return database.add_or_update_review(user["id"], book_id, rating)
 
 
 @router.delete("/informational-material/review")
 async def delete_review(book_id: int,
-                        user: User = Depends(verify_google_token)):
+                        user: Annotated[User, Depends(verify_google_token)]):
     return database.delete_review(book_id, user["id"])
 
 
 @router.delete("/list-informational-material")
 async def delete_list_informational_material(info_mat_list_id: int,
-                                             user: User = Depends(verify_google_token)):
-    return database.delete_info_mat_list(info_mat_list_id)
+                                             user: Annotated[User, Depends(verify_google_token)]):
+    return database.delete_info_mat_list(user["id"], info_mat_list_id)
 
 
 @router.delete("/list-informational-material/item")
 async def delete_item_list_informational_material(info_mat_id: int, info_mat_list_id: int,
-                                                  user: User = Depends(verify_google_token)):
+                                                  user: Annotated[User, Depends(verify_google_token)]):
     return database.remove_info_mat_item_from_list(info_mat_id, info_mat_list_id)
 
 
 @router.post("/list-informational-material/item")
 async def add_item_list_informational_material(info_mat_id: int, info_mat_list_id: int,
-                                               user: User = Depends(verify_google_token)):
+                                               user: Annotated[User, Depends(verify_google_token)]):
     return database.add_info_mat_item_to_list(info_mat_id, info_mat_list_id)
+
+
+@router.get("/permissions", response_model=list[Permission])
+async def add_item_list_informational_material(user: Annotated[User, Depends(verify_google_token)]):
+    return user["permissions"]
 
 '''
 # Rota protegida que requer autenticação com um token do Google

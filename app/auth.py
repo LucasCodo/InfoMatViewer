@@ -5,7 +5,7 @@ from google.auth.transport import requests
 from google.oauth2 import id_token
 
 from app.configs import APPSETTINGS
-from app.database import create_user
+from app.database import create_user, get_permissions
 from app.response_models import User
 
 
@@ -22,10 +22,12 @@ def verify_google_token(token: str = Depends(OAuth2PasswordBearer(tokenUrl="toke
         org = id_info.get("hd", None)
         if org not in ["ufma.br", "discente.ufma.br"]:
             raise HTTPException(status_code=401, detail="The user is not part of this organization")
+        user = create_user(id_info['email'])
+        if user.disable:
+            raise HTTPException(status_code=401)
 
         # Retornar informações do usuário, se necessário
-        user = create_user(id_info['email'])
-        id_info["permissions"] = user.permissions
+        id_info["permissions"] = list(get_permissions(user))
         id_info["id"] = user.id
         return id_info
     except ValueError as _e:

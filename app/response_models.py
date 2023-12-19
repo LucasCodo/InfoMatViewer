@@ -52,7 +52,7 @@ class InfoMatList(BaseModel):
 class InfoMatListPost(BaseModel):
     name: str
     public: bool
-    listIDsInfoMats: list[int]
+    listIDsInfoMats: set[int]
 
 
 class JsonQuery(BaseModel):

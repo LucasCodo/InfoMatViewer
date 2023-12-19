@@ -24,7 +24,7 @@ async def create_list_info_mat(list_info_mat: InfoMatListPost,
     """
     return database.create_info_mat_list_and_add_items(user["email"], list_info_mat.name,
                                                        list_info_mat.public,
-                                                       list_info_mat.listIDsInfoMats)
+                                                       list(list_info_mat.listIDsInfoMats))
 
 
 @router.get("/list-informational-material", response_model=list[InfoMatList])
@@ -61,19 +61,26 @@ async def delete_list_informational_material(info_mat_list_id: int,
 
 
 @router.delete("/list-informational-material/item")
-async def delete_item_list_informational_material(info_mat_id: int, info_mat_list_id: int,
-                                                  user: Annotated[User, Depends(verify_google_token)]):
-    return database.remove_info_mat_item_from_list(info_mat_id, info_mat_list_id)
+async def delete_item_in_list_informational_material(
+        item_id: int, list_id: int,
+        user: Annotated[User, Depends(verify_google_token)]):
+    if (database.is_my_info_mat_list(user["id"], list_id) and
+            database.info_mat_item_in_list(item_id, list_id)):
+        return database.remove_info_mat_item_from_list(item_id, list_id)
+    raise HTTPException(status_code=422)
 
 
 @router.post("/list-informational-material/item")
-async def add_item_list_informational_material(info_mat_id: int, info_mat_list_id: int,
-                                               user: Annotated[User, Depends(verify_google_token)]):
-    return database.add_info_mat_item_to_list(info_mat_id, info_mat_list_id)
+async def add_item_in_list_informational_material(
+        info_mat_id: int, info_mat_list_id: int,
+        user: Annotated[User, Depends(verify_google_token)]):
+    if database.is_my_info_mat_list(user["id"], info_mat_list_id):
+        return database.add_info_mat_item_to_list(info_mat_id, info_mat_list_id)
+    raise HTTPException(status_code=422)
 
 
 @router.get("/permissions", response_model=list[Permission])
-async def add_item_list_informational_material(user: Annotated[User, Depends(verify_google_token)]):
+async def get_permissions(user: Annotated[User, Depends(verify_google_token)]):
     return user["permissions"]
 
 '''

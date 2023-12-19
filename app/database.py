@@ -141,7 +141,7 @@ def get_avg_review(book_id):
     return average_rating
 
 
-def delete_review(book_id, user_id):
+def delete_review(book_id, user_id) -> bool:
     try:
         _review = Review.get(Review.book == book_id and Review.user == user_id)
         _review.delete_instance()
@@ -351,6 +351,18 @@ def get_my_info_mat_lists(user_id):  # no futuro alterar para email
         return None
 
 
+def is_my_info_mat_list(user_id: int, list_id: int) -> bool:
+    return InfoMatList.select().where((InfoMatList.user == user_id) &
+                                      (InfoMatList.id == list_id)).exists()
+
+
+def info_mat_item_in_list(item_id: int,
+                          list_id: int) -> bool:
+    return InfoMatListItems.select().where(
+        (InfoMatListItems.id_list == list_id) &
+        (InfoMatListItems.infoMat == item_id)).exists()
+
+
 # Função para atualizar informações de uma lista de InfoMat
 def update_info_mat_list(info_mat_list_id, name=None, observable=None):
     _info_mat_list = read_info_mat_list(info_mat_list_id)
@@ -370,6 +382,7 @@ def delete_info_mat_list(user_id, info_mat_list_id):
     _info_mat_list = InfoMatList.get(
         (InfoMatList.user == user_id) & (InfoMatList.id == info_mat_list_id))
     if _info_mat_list:
+        InfoMatListItems.delete().where(InfoMatListItems.id_list == _info_mat_list.id).execute()
         _info_mat_list.delete_instance()
         return True
     else:
@@ -550,7 +563,7 @@ if __name__ == "__main__":
     remove_info_mat_item_from_list(info_mat, new_info_mat_list)
 
     # Excluir uma lista de InfoMat pelo ID
-    deleted = delete_info_mat_list(new_info_mat_list.id)
+    deleted = delete_info_mat_list(user.id, new_info_mat_list.id)
     if deleted:
         print("Lista de InfoMat excluída com sucesso.")
     else:

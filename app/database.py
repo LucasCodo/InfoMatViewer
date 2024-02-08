@@ -52,6 +52,7 @@ class InfoMat(BaseModel):
     series = TextField()
     edition = TextField()
     reprint_update = TextField()
+    number_of_hits = IntegerField(default=0)
 
 
 class Review(BaseModel):
@@ -228,6 +229,20 @@ def create_info_mat(title, author, publication_year, cover_image, abstract, matt
         reprint_update=reprint_update
     )
     return _info_mat
+
+
+def add_hit_in_info_mat(info_mat_id):
+    try:
+        _info_mat: InfoMat = InfoMat.get(InfoMat.id == info_mat_id)
+        _info_mat.number_of_hits += 1
+        _info_mat.save()
+    except InfoMat.DoesNotExist:
+        return None
+
+
+def get_most_accessed_info_mats(limit=10):
+    _info_mats = InfoMat.select().limit(limit).order_by(InfoMat.number_of_hits.desc())
+    return list(_info_mats)
 
 
 def get_all_info_mat():

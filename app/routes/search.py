@@ -29,6 +29,7 @@ async def info_mat_details(info_mat_id: int):
 
     Returns:
     - InfoMat: Os detalhes completos do materiais informacionais."""
+    database.add_hit_in_info_mat(info_mat_id)
     return database.read_info_mat(info_mat_id)
 
 
@@ -126,3 +127,10 @@ async def search_info_mat_with_boolean_expression(json_query: JsonQuery):
 @router.get("/informational-material", response_model=list[InfoMat])
 async def get_all_informational_material():
     return database.get_all_info_mat()
+
+
+@router.get("/informational-material-most-accessed", response_model=list[InfoMatBasicWithOutRating])
+async def get_most_accessed_info_mats(limit: int = 10):
+    if limit < 1:
+        return HTMLResponse(status_code=422)
+    return database.get_most_accessed_info_mats(limit)

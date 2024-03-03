@@ -6,8 +6,7 @@ from app.enumerations import PermissionsTypeList
 from typing import Literal
 
 
-class InfoMat(BaseModel):
-    id: int
+class InfoMatPost(BaseModel):
     title: str
     author: list
     publication_year: str
@@ -25,6 +24,10 @@ class InfoMat(BaseModel):
     series: str
     edition: str
     reprint_update: str
+
+
+class InfoMat(InfoMatPost):
+    id: int
 
 
 class InfoMatBasic(BaseModel):

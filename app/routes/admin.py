@@ -10,12 +10,12 @@ router = APIRouter()
 
 
 @router.post("/informational-material")
-async def add_info_mat(new_info_mat: InfoMat, user: User = Depends(verify_google_token)):
+async def add_info_mat(new_info_mat: InfoMatPost, user: User = Depends(verify_google_token)):
     """
         Endpoint para adicionar um novo materiais informacional.
 
         Args:
-        - new_info_mat (InfoMat): Novo materiais informacional a ser adicionado.
+        - new_info_mat (InfoMatPost): Novo materiais informacional a ser adicionado.
 
         Returns:
         - None: Retorna nada ou uma confirmação de sucesso, dependendo da implementação do método

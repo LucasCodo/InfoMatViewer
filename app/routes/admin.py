@@ -9,7 +9,7 @@ from datetime import timedelta
 router = APIRouter()
 
 
-@router.post("/informational-material")
+@router.post("/informational-material", response_model=InfoMat)
 async def add_info_mat(new_info_mat: InfoMatPost, user: User = Depends(verify_google_token)):
     """
         Endpoint para adicionar um novo materiais informacional.
@@ -28,7 +28,7 @@ async def add_info_mat(new_info_mat: InfoMatPost, user: User = Depends(verify_go
     raise HTTPException(status_code=401)
 
 
-@router.delete("/informational-material")
+@router.delete("/informational-material", response_model=bool)
 async def delete_informational_material(info_mat_id: int,
                                         user: User = Depends(verify_google_token)):
     for permission in user["permissions"]:
@@ -38,7 +38,7 @@ async def delete_informational_material(info_mat_id: int,
     raise HTTPException(status_code=401)
 
 
-@router.put("/informational-material")
+@router.put("/informational-material", response_model=InfoMat)
 async def update_informational_material(_info_mat: InfoMatUpdateModel,
                                         user: User = Depends(verify_google_token)):
     for permission in user["permissions"]:

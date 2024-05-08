@@ -41,6 +41,10 @@ class InfoMat(BaseModel):
     cover_image = TextField()  # capa
     abstract = TextField()  # resumo
     matters = JSONField()  # assuntos
+    sub_matters = JSONField(null=True)
+    availability = TextField(null=True)
+    address = TextField(null=True)
+    summary = TextField(null=True)
     tags = JSONField()  # tags
     number_of_pages = TextField()
     isbn = TextField()
@@ -206,7 +210,8 @@ def delete_user(user_id):
 
 # CRUD InfoMat begin
 # Função para criar um novo registro InfoMat
-def create_info_mat(title, author, publication_year, cover_image, abstract, matters, tags,
+def create_info_mat(title, author, publication_year, cover_image, abstract, matters,
+                    sub_matters, availability, address, summary, tags,
                     number_of_pages, isbn, issn, typer, publisher, volume,
                     series, edition, reprint_update, language="PT-BR"):
     _info_mat = InfoMat.create(
@@ -216,6 +221,10 @@ def create_info_mat(title, author, publication_year, cover_image, abstract, matt
         cover_image=cover_image,
         abstract=abstract,
         matters=matters,
+        sub_matters=sub_matters,
+        availability=availability,
+        address=address,
+        summary=summary,
         tags=tags,
         number_of_pages=number_of_pages,
         isbn=isbn,
@@ -283,6 +292,7 @@ def search_info_mat(string):
                 InfoMat.cover_image,
                 InfoMat.abstract,
                 InfoMat.matters.cast('text'),
+                InfoMat.sub_matters.cast('text'),
                 InfoMat.tags.cast('text'),
                 InfoMat.number_of_pages,
                 InfoMat.isbn,

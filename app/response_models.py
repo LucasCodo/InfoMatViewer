@@ -13,6 +13,10 @@ class InfoMatPost(BaseModel):
     cover_image: str  # capa
     abstract: str  # resumo
     matters: list  # assuntos
+    sub_matters: list | None  # sub assuntos
+    availability: str | None  # link de disponibilidade
+    address: str | None
+    summary: str | None
     tags: list  # tags
     number_of_pages: str
     isbn: str

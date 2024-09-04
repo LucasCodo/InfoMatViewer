@@ -4,6 +4,7 @@ from app.database import create_user, get_permissions
 from app.response_models import User
 from fastapi.security import OAuth2AuthorizationCodeBearer
 import requests
+from app.configs import APPSETTINGS
 
 
 @cached(TTLCache(maxsize=256, ttl=1800))
@@ -28,7 +29,8 @@ def verify_google_token(token: str = Depends(OAuth2AuthorizationCodeBearer(
         # Se a resposta foi bem-sucedida, retorna os dados
         token_info = response.json()
         email: str = token_info.get("email", "")
-        if not (email.endswith("ufma.br") or email.endswith("discente.ufma.br")):
+        # if not (email.endswith("@ufma.br") or email.endswith("@discente.ufma.br")):
+        if not any(map(email.endswith, APPSETTINGS.allowed_email_domains)):
             raise HTTPException(status_code=401,
                                 detail="The user is not part of this organization")
         user = create_user(email)

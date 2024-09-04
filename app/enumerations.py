@@ -2,7 +2,7 @@ from enum import Enum
 
 
 # Defina um enum para as permissões
-class PermissionsType(Enum):
+class PermissionsType(str, Enum):
     FULL = "FULL"
     VIEW_INFO_MAT = "VIEW_INFO_MAT"
     CREATE_INFO_MAT = "CREATE_INFO_MAT"

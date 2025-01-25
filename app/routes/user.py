@@ -45,7 +45,7 @@ async def get_my_lists(user: Annotated[User, Depends(verify_google_token)]):
 @router.post("/informational-material/review")
 async def set_review(book_id: int, rating: float,
                      user: Annotated[User, Depends(verify_google_token)]):
-    return database.add_or_update_review(user["id"], book_id, rating)
+    return database.add_or_update_review(book_id, user["id"], rating)
 
 
 @router.delete("/informational-material/review")

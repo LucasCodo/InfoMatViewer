@@ -1,12 +1,11 @@
-version: "0.1.0"
-
 services:
   db:
-    image: postgres:latest
+    build: ./db
     restart: always
     environment:
       POSTGRES_DB: vitrine
       POSTGRES_PASSWORD: password_db
+      POSTGRES_INITDB_ARGS: --encoding=UTF8 --locale=pt_BR.UTF-8 --locale-provider=libc
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:

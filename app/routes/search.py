@@ -134,3 +134,10 @@ async def get_most_accessed_info_mats(limit: int = 10):
     if limit < 1:
         return HTMLResponse(status_code=422)
     return database.get_most_accessed_info_mats(limit)
+
+
+@router.get('/top-rated-informational-materials', response_model=list[InfoMatBasic])
+async def get_top_rated_info_mats(limit: int = 10):
+    if limit < 1:
+        return HTMLResponse(status_code=422)
+    return database.read_top_rated_info_mat(limit)

@@ -281,6 +281,32 @@ def read_info_mat_basic(info_mat_id):
         return None
 
 
+def read_top_rated_info_mat(limit: int = 10, min_reviews: int = 0) -> list[InfoMat]:
+    """
+    Retorna os materiais com melhor avaliação média.
+    - limit: quantos itens retornar
+    - min_reviews: mínimo de reviews exigidas (0 inclui materiais sem review com média=0;
+    1 inclui apenas quem tem review)
+    """
+    avg_rating = fn.COALESCE(fn.AVG(Review.rating), 0).alias("rating")
+    reviews_count = fn.COUNT(Review.id)
+
+    query = (
+        InfoMat
+        .select(InfoMat, avg_rating, reviews_count.alias('reviews_count'))
+        .join(Review, JOIN.LEFT_OUTER)                 # LEFT OUTER para incluir sem reviews (média=0)
+        .group_by(InfoMat.id)
+        .having(reviews_count >= min_reviews)          # filtra por mínimo de reviews, se quiser
+        .order_by(avg_rating.desc(),                   # 1º: maior média
+                  reviews_count.desc(),                # 2º: mais reviews
+                  InfoMat.number_of_hits.desc())       # 3º: mais acessos (critério extra opcional)
+        .limit(limit)
+    )
+    # Obs: cada item retornado carrega os campos extras avg_rating e reviews_count acessíveis
+    # como atributos
+    return list(query)
+
+
 # Função para ler um registro InfoMat que corresponda a um valor em qualquer campo
 def search_info_mat(string):
     try:

@@ -1,0 +1,32 @@
+databases:
+  - name: postgres
+    plan: free
+
+services:
+  - name: InfoMatViewer-API
+    type: web
+    plan: free
+    runtime: python
+    buildCommand: poetry install
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port 80
+    envVars: #Se atente às variáveis setadas no perfil de produção
+      - key: host
+        fromDatabase:
+          name: postgres
+          property: host
+      - key: port
+        fromDatabase:
+          name: postgres
+          property: port
+      - key: database
+        fromDatabase:
+          name: postgres
+          property: database
+      - key: user
+        fromDatabase:
+          name: postgres
+          property: user
+      - key: password
+        fromDatabase:
+          name: postgres
+          property: password

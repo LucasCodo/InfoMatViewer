@@ -6,9 +6,8 @@ services:
   - name: InfoMatViewer-API
     type: web
     plan: free
-    runtime: python
-    buildCommand: 'poetry install'
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port 80
+    runtime: docker
+    dockerfilePath: ./app/Dockerfile
     envVars: #Se atente às variáveis setadas no perfil de produção
       - key: host
         fromDatabase:
